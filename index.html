@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="اختبار تفاعلي من 30 سؤالًا على الأفعال الألمانية المنفصلة Trennbare Verben.">
+  <title>Quiz: Trennbare Verben | الأفعال المنفصلة</title>
+  <style>
+    :root {
+      --navy:#12345a; --blue:#2476b8; --pale:#f3f8fd; --ink:#172b4d;
+      --muted:#63748a; --green:#18794e; --red:#b42318; --line:#d7e2ef;
+      --yellow:#fff0a8; --white:#fff;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; background:linear-gradient(180deg,#eaf4ff 0,#f8fbff 280px,#f5f7fb 100%);
+      color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+      line-height:1.65;
+    }
+    .container { width:min(960px,100%); margin:0 auto; padding:20px 14px 44px; }
+    header {
+      background:var(--navy); color:#fff; border-radius:22px; padding:24px 22px;
+      box-shadow:0 10px 28px #12345a20; margin-bottom:16px;
+    }
+    h1 { margin:0 0 5px; font-size:clamp(1.45rem,4vw,2.15rem); }
+    header p { margin:0; color:#e5f1ff; }
+    .meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    .pill { background:#ffffff1b; border:1px solid #ffffff40; border-radius:999px; padding:5px 11px; font-size:.9rem; }
+    .intro,.question,.results { background:var(--white); border:1px solid var(--line); border-radius:16px; padding:18px; margin:14px 0; box-shadow:0 4px 16px #1d35570a; }
+    .intro h2 { margin:0 0 7px; font-size:1.1rem; }
+    .intro p { margin:5px 0; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:16px 2px 8px; }
+    .progress-wrap { height:9px; border-radius:99px; background:#dce8f5; overflow:hidden; margin:8px 0 18px; }
+    #progress { height:100%; width:0%; background:linear-gradient(90deg,#2476b8,#48b4a3); transition:width .2s; }
+    .qhead { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+    .qnum { font-weight:800; color:var(--blue); }
+    .difficulty { font-size:.78rem; border-radius:999px; padding:3px 9px; background:#eef4fb; color:#34516e; white-space:nowrap; }
+    .prompt { font-size:1.08rem; font-weight:700; margin:8px 0 13px; }
+    .de { direction:ltr; unicode-bidi:embed; text-align:left; font-family:Arial,sans-serif; }
+    .options { display:grid; gap:9px; }
+    .option {
+      display:flex; align-items:flex-start; gap:10px; width:100%; text-align:right;
+      background:#fff; border:1px solid var(--line); border-radius:11px; padding:11px 12px;
+      cursor:pointer; color:var(--ink); font:inherit; transition:.15s;
+    }
+    .option:hover { border-color:#79acd7; background:#f5faff; }
+    .option:focus-visible,button:focus-visible { outline:3px solid #f3c94f; outline-offset:2px; }
+    .option.selected { border-color:var(--blue); background:#eaf5ff; box-shadow:inset 0 0 0 1px var(--blue); }
+    .option.correct { border-color:#49a879; background:#edfaf2; }
+    .option.wrong { border-color:#e08a84; background:#fff1f0; }
+    .letter { flex:0 0 26px; height:26px; border-radius:50%; background:#e8eff7; color:#34516e; display:grid; place-items:center; font-size:.83rem; font-weight:800; }
+    .feedback { margin-top:11px; padding:10px 12px; border-radius:10px; display:none; }
+    .feedback.show { display:block; }
+    .feedback.good { color:#145c3d; background:#e9f8ef; }
+    .feedback.bad { color:#8f1d17; background:#fff0ef; }
+    .controls { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0; }
+    button.action { border:0; border-radius:11px; padding:11px 17px; font:inherit; font-weight:750; cursor:pointer; }
+    .primary { background:var(--blue); color:#fff; }
+    .primary:hover { background:#185e96; }
+    .secondary { background:#e6edf5; color:var(--ink); }
+    .secondary:hover { background:#d8e4f1; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .results { display:none; border-top:5px solid var(--blue); }
+    .results.show { display:block; }
+    .score { font-size:2rem; font-weight:850; color:var(--navy); }
+    .review-item { border-top:1px solid var(--line); padding:12px 0; }
+    .review-item:last-child { padding-bottom:0; }
+    .review-item p { margin:4px 0; }
+    .small { color:var(--muted); font-size:.92rem; }
+    footer { text-align:center; color:var(--muted); font-size:.86rem; padding-top:8px; }
+
+    .quiz-nav { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:16px 0; }
+    .step-label { color:var(--muted); font-size:.92rem; font-weight:700; }
+    .feedback strong { display:block; margin-bottom:3px; }
+    .feedback .reason { margin-top:4px; }
+
+    @media (min-width:700px) { .options.two { grid-template-columns:1fr 1fr; } }
+    @media print {
+      body { background:#fff; } header { box-shadow:none; } .controls, .toolbar, footer { display:none!important; }
+      .question,.intro,.results { box-shadow:none; break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>اختبار الأفعال الألمانية المنفصلة</h1>
+      <p class="de">Trennbare Verben — Interactive Quiz</p>
+      <div class="meta">
+        <span class="pill">30 سؤالًا</span>
+        <span class="pill">سهل · متوسط · متقدم</span>
+        <span class="pill">تصحيح فوري ونتيجة نهائية</span>
+      </div>
+    </header>
+
+    <section class="intro">
+      <h2>قبل أن تبدأ</h2>
+      <p>في الجملة الرئيسية، ينفصل الجزء الأول من الفعل غالبًا ويأتي في نهاية الجملة: <span class="de"><b>Ich rufe</b> dich <b>an</b>.</span></p>
+      <p>مع الفعل الناقص (Modalverb)، يبقى الفعل المنفصل في المصدر في نهاية الجملة: <span class="de">Ich kann dich heute <b>anrufen</b>.</span></p>
+      <p class="small">اختر إجابة واحدة لكل سؤال. يمكنك مراجعة إجابتك بعد الاختيار، ثم اضغط «إنهاء الاختبار» لحساب النتيجة.</p>
+    </section>
+
+    <div class="toolbar">
+      <strong id="answeredCount">تمت الإجابة عن 0 من 30</strong>
+      <span class="small">التقدم</span>
+    </div>
+    <div class="progress-wrap" aria-label="نسبة إكمال الاختبار"><div id="progress"></div></div>
+
+    <form id="quizForm" novalidate>
+      <div id="questions"></div>
+      <div class="quiz-nav">
+        <button class="action secondary" type="button" id="prevBtn">السؤال السابق</button>
+        <span class="step-label" id="stepLabel">السؤال 1 من 30</span>
+        <button class="action primary" type="button" id="nextBtn" disabled>السؤال التالي</button>
+      </div>
+      <div class="controls">
+        <button class="action primary" type="button" id="submitBtn" hidden>إنهاء الاختبار وعرض النتيجة</button>
+        <button class="action secondary" type="button" id="resetBtn">إعادة الاختبار</button>
+      </div>
+    </form>
+
+    <section class="results" id="results" aria-live="polite">
+      <h2>نتيجتك</h2>
+      <div class="score" id="scoreText"></div>
+      <p id="resultMessage"></p>
+      <div id="review"></div>
+      <div class="controls">
+        <button class="action primary" type="button" id="retryBtn">حاول مرة أخرى</button>
+        <button class="action secondary" type="button" id="printBtn">طباعة النتيجة</button>
+      </div>
+    </section>
+    <footer>ملف مستقل يعمل في المتصفح ويمكن نشره مباشرة على GitHub Pages.</footer>
+  </main>
+
+  <script>
+  const questions = [
+    {d:"سهل", type:"اختيار المعنى", p:'ما معنى الفعل <span class="de">anmachen</span> في سياق الضوء؟', o:['يُشغّل','يُطفئ','يصل','يغادر'], a:0, e:'<span class="de">anmachen</span> تعني تشغيل شيء، مثل الضوء: <span class="de">das Licht anmachen</span>.'},
+    {d:"سهل", type:"اختيار المعنى", p:'ما معنى <span class="de">ausmachen</span>؟', o:['يفتح الباب','يُطفئ / يُغلق التشغيل','يتصل هاتفيًا','يدخل'], a:1, e:'<span class="de">ausmachen</span> تعني إطفاء الضوء أو إيقاف تشغيل شيء.'},
+    {d:"سهل", type:"إكمال الجملة", p:'اختر الجزء المناسب: <span class="de">Ich mache das Licht ___.</span><br>أنا أشغّل الضوء.', o:['aus','an','zu','ab'], a:1, e:'في الجملة الرئيسية يأتي الجزء المنفصل في النهاية: <span class="de">Ich mache das Licht <b>an</b>.</span>'},
+    {d:"سهل", type:"إكمال الجملة", p:'اختر الجزء المناسب: <span class="de">Ich mache die Tür ___.</span><br>أنا أفتح الباب.', o:['zu','ein','auf','ab'], a:2, e:'<span class="de">aufmachen</span> تعني يفتح، والجملة الصحيحة: <span class="de">Ich mache die Tür <b>auf</b>.</span>'},
+    {d:"سهل", type:"إكمال الجملة", p:'اختر الجزء المناسب: <span class="de">Ich mache die Tür ___.</span><br>أنا أغلق الباب.', o:['auf','an','zu','aus'], a:2, e:'<span class="de">zumachen</span> تعني يغلق، والجملة الصحيحة: <span class="de">Ich mache die Tür <b>zu</b>.</span>'},
+    {d:"سهل", type:"اختيار الترجمة", p:'ما الترجمة الصحيحة؟ <span class="de">Ich rufe dich an.</span>', o:['أنا أراك.','أنا أتصل بك هاتفيًا.','أنا أفتح لك الباب.','أنا أصل إليك.'], a:1, e:'<span class="de">anrufen</span> تعني الاتصال بشخص عبر الهاتف.'},
+    {d:"سهل", type:"اختيار المعنى", p:'ما معنى <span class="de">ankommen</span>؟', o:['يصل','يغادر','يُشغّل','يُغلق'], a:0, e:'<span class="de">ankommen</span> تعني يصل إلى مكان.'},
+    {d:"سهل", type:"اختيار المعنى", p:'ما معنى <span class="de">abfahren</span> عند الحديث عن القطار؟', o:['يدخل الرصيف','يغادر / ينطلق','يتصل','يفتح'], a:1, e:'<span class="de">abfahren</span> تعني أن القطار يغادر أو ينطلق.'},
+    {d:"سهل", type:"اختيار الجملة", p:'أي جملة تعني «أنا أطفئ الضوء»؟', o:['<span class="de">Ich mache das Licht an.</span>','<span class="de">Ich mache das Licht aus.</span>','<span class="de">Ich mache die Tür auf.</span>','<span class="de">Ich rufe dich an.</span>'], a:1, e:'<span class="de">ausmachen</span> = يطفئ، أما <span class="de">anmachen</span> = يشغّل.'},
+    {d:"سهل", type:"تمييز الجزء المنفصل", p:'ما الجزء المنفصل في الفعل <span class="de">zumachen</span>؟', o:['machen','zu','zum','ma'], a:1, e:'الفعل يتكوّن من <span class="de">zu + machen</span>، والبادئة المنفصلة هي <span class="de">zu</span>.'},
+
+    {d:"متوسط", type:"تصريف الفعل", p:'أكمل: <span class="de">Der Zug ___ um 10 Uhr ab.</span><br>القطار يغادر الساعة العاشرة.', o:['fahren','fährt','fährst','fahrt'], a:1, e:'مع <span class="de">der Zug = er</span> نستخدم <span class="de">fährt</span>: <span class="de">Der Zug fährt ... ab.</span>'},
+    {d:"متوسط", type:"ترتيب الكلمات", p:'اختر الجملة الصحيحة: «متى تصل؟»', o:['<span class="de">Wann du kommst an?</span>','<span class="de">Wann kommst du an?</span>','<span class="de">Wann ankommst du?</span>','<span class="de">Wann kommst an du?</span>'], a:1, e:'في السؤال: الفعل المصرف <span class="de">kommst</span> يأتي بعد أداة السؤال، والبادئة <span class="de">an</span> في النهاية.'},
+    {d:"متوسط", type:"اختيار الترجمة", p:'اختر الترجمة الأدق: <span class="de">Der Zug fährt in Gleis 10 ein.</span>', o:['يغادر القطار الساعة العاشرة.','يدخل القطار إلى الرصيف رقم 10.','يتصل القطار بالرصيف.','يفتح القطار الباب.'], a:1, e:'<span class="de">einfahren</span> تعني الدخول، و<span class="de">Gleis 10</span> هو الرصيف/المسار رقم 10.'},
+    {d:"متوسط", type:"إكمال الجملة", p:'أكمل: <span class="de">Wann ___ du an?</span>', o:['kommt','kommst','kommen','komme'], a:1, e:'مع <span class="de">du</span> نصرّف <span class="de">ankommen</span> إلى <span class="de">kommst ... an</span>.'},
+    {d:"متوسط", type:"اختيار الجملة", p:'أي جملة صحيحة نحويًا؟', o:['<span class="de">Ich anrufe dich.</span>','<span class="de">Ich rufe an dich.</span>','<span class="de">Ich rufe dich an.</span>','<span class="de">Ich ruf dich anrufen.</span>'], a:2, e:'الفعل المصرف <span class="de">rufe</span> في المركز الثاني، والضمير <span class="de">dich</span> قبل الجزء المنفصل <span class="de">an</span>.'},
+    {d:"متوسط", type:"تصحيح خطأ", p:'اختر التصحيح الصحيح للجملة: <span class="de">Ich mache an das Licht.</span>', o:['<span class="de">Ich anmache das Licht.</span>','<span class="de">Ich mache das Licht an.</span>','<span class="de">Ich mache an das Licht aus.</span>','<span class="de">Ich das Licht mache an.</span>'], a:1, e:'في الجملة الرئيسية يأتي الجزء المنفصل في نهاية الجملة: <span class="de">Ich mache das Licht an.</span>'},
+    {d:"متوسط", type:"اختيار الفعل", p:'أي فعل يناسب: «القطار يدخل إلى الرصيف»؟', o:['<span class="de">abfahren</span>','<span class="de">anmachen</span>','<span class="de">einfahren</span>','<span class="de">zumachen</span>'], a:2, e:'<span class="de">einfahren</span> = يدخل (مثل القطار إلى الرصيف)، و<span class="de">abfahren</span> = يغادر.'},
+    {d:"متوسط", type:"تمييز الجملة", p:'أي جملة تستخدم <span class="de">aufmachen</span> بصورة صحيحة؟', o:['<span class="de">Ich mache die Tür auf.</span>','<span class="de">Ich mache die Tür an.</span>','<span class="de">Ich mache die Tür ab.</span>','<span class="de">Ich mache die Tür ein.</span>'], a:0, e:'<span class="de">die Tür aufmachen</span> تعني فتح الباب.'},
+    {d:"متوسط", type:"ترجمة إلى الألمانية", p:'اختر الجملة الألمانية الصحيحة: «أنا أغلق الباب».', o:['<span class="de">Ich mache die Tür auf.</span>','<span class="de">Ich mache die Tür zu.</span>','<span class="de">Ich mache die Tür an.</span>','<span class="de">Ich mache die Tür ab.</span>'], a:1, e:'<span class="de">zumachen</span> = يغلق؛ لذلك نقول <span class="de">Ich mache die Tür zu.</span>'},
+    {d:"متوسط", type:"معنى في السياق", p:'في الجملة <span class="de">Ich mache den Computer aus.</span>، ماذا تعني <span class="de">aus</span>؟', o:['تشغيل الكمبيوتر','إيقاف تشغيل الكمبيوتر','فتح الكمبيوتر','الوصول إلى الكمبيوتر'], a:1, e:'<span class="de">ausmachen</span> تُستخدم لإيقاف تشغيل جهاز.'},
+
+    {d:"متقدم", type:"الفعل الناقص", p:'أكمل: <span class="de">Ich kann dich heute ___.</span><br>أستطيع الاتصال بك اليوم.', o:['<span class="de">anrufe</span>','<span class="de">rufe an</span>','<span class="de">anrufen</span>','<span class="de">rufen an</span>'], a:2, e:'بعد الفعل الناقص <span class="de">kann</span> يأتي الفعل الآخر في المصدر في نهاية الجملة: <span class="de">anrufen</span>.'},
+    {d:"متقدم", type:"اختيار الجملة", p:'أي جملة صحيحة مع الفعل الناقص <span class="de">können</span>؟', o:['<span class="de">Ich kann rufe dich an.</span>','<span class="de">Ich kann dich anrufen.</span>','<span class="de">Ich anrufen kann dich.</span>','<span class="de">Ich kann dich rufe an.</span>'], a:1, e:'مع الفعل الناقص لا نفصل البادئة: يبقى الفعل <span class="de">anrufen</span> في المصدر بنهاية الجملة.'},
+    {d:"متقدم", type:"تمييز القاعدة", p:'أين يأتي الجزء <span class="de">an</span> في الجملة الرئيسية: <span class="de">Ich rufe dich ___</span>؟', o:['قبل الفعل المصرف','بعد الضمير في نهاية الجملة','قبل الفاعل','لا يظهر أبدًا'], a:1, e:'في <span class="de">Ich rufe dich an.</span> يأتي الجزء المنفصل <span class="de">an</span> في نهاية الجملة.'},
+    {d:"متقدم", type:"اختيار المعنى", p:'ما الفرق الصحيح بين <span class="de">abfahren</span> و<span class="de">einfahren</span>؟', o:['كلاهما يعني يغلق','الأول يغادر والثاني يدخل','الأول يتصل والثاني يصل','الأول يفتح والثاني يطفئ'], a:1, e:'<span class="de">abfahren</span> = يغادر/ينطلق، و<span class="de">einfahren</span> = يدخل، خاصةً عن القطار.'},
+    {d:"متقدم", type:"اختيار السؤال", p:'أي سؤال يسأل «متى يغادر القطار؟»', o:['<span class="de">Wann fährt der Zug ab?</span>','<span class="de">Wann abfährt der Zug?</span>','<span class="de">Wann der Zug fährt ab?</span>','<span class="de">Wann fährt ab der Zug?</span>'], a:0, e:'في سؤال بأداة استفهام يأتي الفعل المصرف <span class="de">fährt</span> في المركز الثاني، و<span class="de">ab</span> في النهاية.'},
+    {d:"متقدم", type:"اختيار الترجمة", p:'اختر الترجمة الصحيحة: <span class="de">Mach bitte die Tür zu!</span>', o:['افتح الباب من فضلك!','أطفئ الضوء من فضلك!','أغلق الباب من فضلك!','اتصل بي من فضلك!'], a:2, e:'هذا أمر غير رسمي: <span class="de">Mach ... zu!</span> من الفعل <span class="de">zumachen</span>.'},
+    {d:"متقدم", type:"تمييز ترتيب الجملة", p:'اختر الترتيب الصحيح للكلمات: <span class="de">heute / ich / dich / anrufen / kann</span>', o:['<span class="de">Heute ich dich anrufen kann.</span>','<span class="de">Heute kann ich dich anrufen.</span>','<span class="de">Heute anrufen kann ich dich.</span>','<span class="de">Heute kann an ich dich rufen.</span>'], a:1, e:'عند البدء بـ <span class="de">Heute</span> يأتي الفعل المصرف <span class="de">kann</span> ثانيًا، ويبقى <span class="de">anrufen</span> في النهاية.'},
+    {d:"متقدم", type:"تصحيح خطأ", p:'صحّح: <span class="de">Der Zug abfährt um 10 Uhr.</span>', o:['<span class="de">Der Zug fährt um 10 Uhr ab.</span>','<span class="de">Der Zug ab um 10 Uhr fährt.</span>','<span class="de">Der Zug fahren um 10 Uhr ab.</span>','<span class="de">Der Zug fährt ab um 10 Uhr.</span>'], a:0, e:'الفعل المصرف <span class="de">fährt</span> يأتي في المركز الثاني، والجزء <span class="de">ab</span> في النهاية.'},
+    {d:"متقدم", type:"اختيار الفعل المناسب", p:'وصلت إلى المحطة ورأيت القطار يدخل الرصيف. أي جملة تصف ذلك؟', o:['<span class="de">Der Zug fährt ab.</span>','<span class="de">Der Zug fährt ein.</span>','<span class="de">Der Zug macht zu.</span>','<span class="de">Der Zug ruft an.</span>'], a:1, e:'<span class="de">Der Zug fährt ein.</span> تعني أن القطار يدخل، أما <span class="de">fährt ab</span> فتعني أنه يغادر.'},
+    {d:"متقدم", type:"قاعدة متكاملة", p:'اختر الجملة الصحيحة التي تعني «لا أستطيع الاتصال بك اليوم» (مع استخدام <span class="de">können</span>).', o:['<span class="de">Ich kann dich heute nicht anrufen.</span>','<span class="de">Ich kann dich heute nicht rufe an.</span>','<span class="de">Ich nicht kann dich heute anrufen.</span>','<span class="de">Ich kann an dich heute nicht rufen.</span>'], a:0, e:'مع <span class="de">kann</span> يبقى <span class="de">anrufen</span> في المصدر في نهاية الجملة؛ وتأتي <span class="de">nicht</span> قبل هذا الجزء هنا.'}
+  ];
+
+  const letters = ['أ','ب','ج','د'];
+  const root = document.getElementById('questions');
+  const answeredCount = document.getElementById('answeredCount');
+  const progress = document.getElementById('progress');
+  const results = document.getElementById('results');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const stepLabel = document.getElementById('stepLabel');
+  let submitted = false;
+  let currentIndex = 0;
+  const answers = Array(questions.length).fill(null);
+  const checked = Array(questions.length).fill(false);
+
+  function render() {
+    const i = currentIndex;
+    const q = questions[i];
+    root.innerHTML = '';
+    const card = document.createElement('section');
+    card.className = 'question';
+    card.id = `q-${i}`;
+    card.innerHTML = `
+      <div class="qhead"><span class="qnum">السؤال ${i+1} من ${questions.length} · ${q.type}</span><span class="difficulty">${q.d}</span></div>
+      <div class="prompt">${q.p}</div>
+      <div class="options two" role="group" aria-label="اختيارات السؤال ${i+1}">
+        ${q.o.map((option,j)=>`<button type="button" class="option ${answers[i]===j?'selected':''}" data-q="${i}" data-a="${j}" ${checked[i]?'disabled':''}><span class="letter">${letters[j]}</span><span>${option}</span></button>`).join('')}
+      </div>
+      <div class="feedback ${checked[i]?'show '+(answers[i]===q.a?'good':'bad'):''}" id="feedback-${i}" aria-live="polite">
+        ${checked[i] ? feedbackHTML(q, answers[i]) : ''}
+      </div>`;
+    root.appendChild(card);
+
+    root.querySelectorAll('.option').forEach(btn => {
+      const j = Number(btn.dataset.a);
+      if (checked[i]) {
+        if (j === q.a) btn.classList.add('correct');
+        if (j === answers[i] && answers[i] !== q.a) btn.classList.add('wrong');
+      }
+      btn.addEventListener('click', () => choose(btn));
+    });
+
+    stepLabel.textContent = `السؤال ${i+1} من ${questions.length}`;
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = !checked[i];
+    nextBtn.textContent = i === questions.length-1 ? 'عرض النتيجة النهائية' : 'السؤال التالي';
+    document.getElementById('submitBtn').hidden = true;
+    updateProgress();
+  }
+
+  function feedbackHTML(q, answer) {
+    if (answer === q.a) {
+      return `<strong>✓ إجابة صحيحة!</strong><div class="reason">السبب: ${q.e}</div>`;
+    }
+    return `<strong>✗ إجابة خاطئة.</strong><div>الإجابة الصحيحة: <b>${q.o[q.a]}</b></div><div class="reason">السبب: ${q.e}</div>`;
+  }
+
+  function choose(btn) {
+    if (submitted) return;
+    const i = Number(btn.dataset.q);
+    if (checked[i]) return;
+    answers[i] = Number(btn.dataset.a);
+    checked[i] = true;
+    render();
+    document.getElementById(`feedback-${i}`).scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function updateProgress() {
+    const count = checked.filter(Boolean).length;
+    answeredCount.textContent = `تمت الإجابة عن ${count} من ${questions.length}`;
+    progress.style.width = `${count/questions.length*100}%`;
+  }
+
+  function nextQuestion() {
+    if (!checked[currentIndex]) return;
+    if (currentIndex < questions.length - 1) {
+      currentIndex++;
+      render();
+      window.scrollTo({top:0, behavior:'smooth'});
+    } else {
+      submitQuiz();
+    }
+  }
+
+  function previousQuestion() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      render();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  }
+
+  function submitQuiz() {
+    if (submitted) return;
+    submitted = true;
+    const score = questions.reduce((sum, q, i) => sum + (answers[i] === q.a ? 1 : 0), 0);
+    const wrong = questions.map((q,i)=>i).filter(i=>answers[i] !== questions[i].a);
+    document.getElementById('scoreText').textContent = `${score} / ${questions.length} (${Math.round(score/questions.length*100)}٪)`;
+    let msg = score >= 27 ? 'ممتاز جدًا! فهمك للأفعال المنفصلة قوي.' :
+              score >= 22 ? 'أداء جيد جدًا. راجع الأسئلة التي أخطأت فيها لتثبيت القاعدة.' :
+              score >= 15 ? 'بداية جيدة. ركّز على موضع الجزء المنفصل وتصريف الفعل.' :
+              'أنصحك بمراجعة الأمثلة الأساسية ثم إعادة الاختبار. انتبه إلى الفرق بين الجملة العادية والجملة مع Modalverb.';
+    document.getElementById('resultMessage').textContent = `${msg} عدد الإجابات غير الصحيحة: ${wrong.length}.`;
+    const review = document.getElementById('review');
+    review.innerHTML = '<h3>مراجعة الأسئلة التي تحتاج إلى مراجعة</h3>' + (wrong.length ? wrong.map(i =>
+      `<div class="review-item"><strong>السؤال ${i+1}: ${questions[i].d}</strong><p>${questions[i].p}</p><p>إجابتك: <b>${answers[i] === null ? 'لم تتم الإجابة' : questions[i].o[answers[i]]}</b></p><p>الإجابة الصحيحة: <b>${questions[i].o[questions[i].a]}</b></p><p class="small">السبب: ${questions[i].e}</p></div>`
+    ).join('') : '<p>رائع! أجبت عن جميع الأسئلة إجابة صحيحة.</p>');
+    results.classList.add('show');
+    document.querySelector('.quiz-nav').style.display = 'none';
+    document.getElementById('submitBtn').disabled = true;
+    results.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function resetQuiz() {
+    submitted = false;
+    currentIndex = 0;
+    answers.fill(null);
+    checked.fill(false);
+    results.classList.remove('show');
+    document.querySelector('.quiz-nav').style.display = 'flex';
+    document.getElementById('submitBtn').disabled = false;
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+  document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+  document.getElementById('retryBtn').addEventListener('click', resetQuiz);
+  prevBtn.addEventListener('click', previousQuestion);
+  nextBtn.addEventListener('click', nextQuestion);
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+  render();
+  </script>
+</body>
+</html>
